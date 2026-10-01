@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulasi Kehidupan & Kebebasan Finansial | GM Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js for net worth and cash flow analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Canvas Confetti for milestones -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Header Bar -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon">🎮</div>
+        <div>
+          <h1>SIMULASI KEHIDUPAN & STRATEGI FINANSIAL</h1>
+          <p class="subtitle">Real-World Economic Engine & Strategic Decision Simulator</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge round-badge" id="badge-round">RONDE 1 / 20</span>
+        <span class="badge status-badge" id="badge-health">KESEHATAN: 85%</span>
+        <button id="btn-restart" class="btn-icon" title="Reset Simulasi">🔄 Mulai Ulang</button>
+      </div>
+    </header>
+
+    <div class="main-content-grid">
+      <!-- Left Column: Character Sheet & Financial Statement -->
+      <aside class="sidebar-panel">
+        <div class="panel-section profile-card">
+          <div class="profile-header">
+            <div class="avatar">👨‍💻</div>
+            <div>
+              <h2 id="char-name">Hendra Pratama</h2>
+              <p class="text-muted" id="char-role">36 Tahun • Sr. Software Engineer (Jakarta)</p>
+              <p class="family-tag">👨‍👩‍👦 Menikah, 1 Anak (5 Tahun - Persiapan SD)</p>
+            </div>
+          </div>
+          <div class="stress-meter-container">
+            <div class="meter-label">
+              <span>Energi & Stamina</span>
+              <span id="stamina-val">85 / 100</span>
+            </div>
+            <div class="meter-bar"><div class="meter-fill fill-green" id="stamina-bar" style="width: 85%;"></div></div>
+            
+            <div class="meter-label mt-2">
+              <span>Beban Stres & Burnout</span>
+              <span id="stress-val">35 / 100</span>
+            </div>
+            <div class="meter-bar"><div class="meter-fill fill-amber" id="stress-bar" style="width: 35%;"></div></div>
+          </div>
+        </div>
+
+        <!-- Net Worth & Cash Overview -->
+        <div class="panel-section stats-summary">
+          <div class="stat-box highlight-box">
+            <span class="label">NET WORTH (KEKAYAAN BERSIH)</span>
+            <span class="value-huge font-mono" id="stat-networth">Rp 62.600.000</span>
+            <span class="trend" id="stat-networth-delta">Awal Simulasi</span>
+          </div>
+          <div class="stats-2col">
+            <div class="stat-box">
+              <span class="label">UANG TUNAI (KAS)</span>
+              <span class="value font-mono text-emerald" id="stat-cash">Rp 45.000.000</span>
+              <span class="subtext" id="stat-cash-buffer">~2.5 Bulan Pengeluaran</span>
+            </div>
+            <div class="stat-box">
+              <span class="label">FREE CASH FLOW / BLN</span>
+              <span class="value font-mono text-cyan" id="stat-fcf">+Rp 4.650.000</span>
+              <span class="subtext">Arus Kas Bersih</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cash Flow Breakdown -->
+        <div class="panel-section">
+          <h3 class="section-title">📊 Arus Kas Bulanan</h3>
+          <div class="data-list">
+            <div class="data-item">
+              <span>Pendapatan Aktif (Gaji Bersih)</span>
+              <span class="font-mono text-emerald" id="stat-income-active">Rp 22.000.000</span>
+            </div>
+            <div class="data-item">
+              <span>Pendapatan Pasif / Bisnis</span>
+              <span class="font-mono text-cyan" id="stat-income-passive">Rp 150.000</span>
+            </div>
+            <div class="data-item">
+              <span>Pengeluaran Hidup Keluarga</span>
+              <span class="font-mono text-rose" id="stat-expenses">Rp 17.500.000</span>
+            </div>
+            <div class="data-item">
+              <span>Cicilan & Utang</span>
+              <span class="font-mono text-amber" id="stat-debt-monthly">Rp 1.200.000 / bln</span>
+            </div>
+            <div class="data-item text-muted-small">
+              <span>Sisa Pokok Utang (Cicilan Motor)</span>
+              <span class="font-mono" id="stat-debt-total">Rp 8.400.000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Capital, Assets & Business -->
+        <div class="panel-section">
+          <h3 class="section-title">🏢 Aset & Portofolio Bisnis</h3>
+          <div class="data-list" id="assets-list">
+            <!-- Dynamic Assets List -->
+          </div>
+        </div>
+
+        <!-- Skills, Network & Reputation -->
+        <div class="panel-section">
+          <h3 class="section-title">🧠 Kapabilitas & Modal Sosial</h3>
+          <div class="skills-grid" id="skills-grid">
+            <!-- Dynamic Skills Badges -->
+          </div>
+        </div>
+
+        <!-- Targets & Quests -->
+        <div class="panel-section targets-card">
+          <h3 class="section-title">🎯 Target & Milestone Finansial</h3>
+          <ul class="target-list" id="target-list">
+            <!-- Dynamic targets -->
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Center & Right: Game Scenario, Decision Terminal, and Event Logs -->
+      <main class="game-stage">
+        <!-- Notification / Event banner -->
+        <div id="event-toast" class="event-toast hidden"></div>
+
+        <!-- Situation Card -->
+        <div class="stage-card situation-card">
+          <div class="situation-header">
+            <div class="round-counter-pill" id="scenario-round-title">RONDE 1 : PERSIMPANGAN DISRUPSI AI & KAS MIKRO</div>
+            <div class="time-allocation-pill" id="time-free-pill">⏳ Waktu Luang: 15 Jam / Minggu</div>
+          </div>
+          
+          <h2 class="scenario-headline" id="scenario-title">Tawaran Freelance Logistik vs Disrupsi AI</h2>
+          
+          <div class="scenario-body" id="scenario-description">
+            <!-- Story text injected here -->
+          </div>
+
+          <div class="macro-context-box" id="macro-context">
+            <strong>🌐 Sentimen Ekonomi & Pasar:</strong>
+            <span id="macro-text">Tech winter berlanjut di agensi; korporasi menuntut efisiensi koding berbasis AI. Inflasi pendidikan anak meningkat.</span>
+          </div>
+        </div>
+
+        <!-- Choice Selection Section -->
+        <div class="choices-container">
+          <h3 class="choices-title">Pilih Keputusan Strategis Anda:</h3>
+          <div class="choice-cards-grid" id="choices-grid">
+            <!-- Decision cards dynamically rendered -->
+          </div>
+        </div>
+
+        <!-- Review / Consequences Modal or Area -->
+        <div id="resolution-panel" class="resolution-panel hidden">
+          <div class="resolution-header">
+            <span class="resolution-icon" id="res-icon">🎲</span>
+            <h3 id="res-title">Hasil Keputusan & Efek Second-Order</h3>
+          </div>
+          <div class="resolution-content font-sans" id="res-story">
+            <!-- Consequence narration -->
+          </div>
+          <div class="resolution-impacts" id="res-impacts">
+            <!-- Impact bullets -->
+          </div>
+          <button id="btn-next-round" class="btn-primary mt-3">Lanjutkan ke Ronde Berikutnya ➔</button>
+        </div>
+
+        <!-- 5-Round Audit & Final Report Modal / Container -->
+        <div id="audit-modal" class="audit-modal hidden">
+          <div class="audit-content">
+            <div class="audit-header">
+              <h2 id="audit-title">📋 AUDIT KINERJA STRATEGIS & KEPUTUSAN</h2>
+              <button id="btn-close-audit" class="btn-close">✕</button>
+            </div>
+            <div class="audit-body" id="audit-body">
+              <!-- Audit Analytics Output -->
+            </div>
+            <div class="audit-chart-wrapper">
+              <canvas id="networth-chart"></canvas>
+            </div>
+            <div class="audit-footer">
+              <button id="btn-continue-after-audit" class="btn-primary">Lanjutkan Perjalanan ➔</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- History Log Drawer -->
+        <div class="history-panel">
+          <div class="history-header" id="toggle-history">
+            <h3>📜 Rekam Jejak Keputusan & Log Transaksi</h3>
+            <span id="history-arrow">▼</span>
+          </div>
+          <div class="history-content" id="history-list">
+            <!-- Historical rounds log -->
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

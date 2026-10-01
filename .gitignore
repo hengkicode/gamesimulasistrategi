@@ -1,0 +1,13 @@
+# Dependency
+node_modules/
+.venv/
+__pycache__/
+
+# System & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
