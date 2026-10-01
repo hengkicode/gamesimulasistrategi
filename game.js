@@ -1080,24 +1080,33 @@ function renderUI() {
   // Net Worth & Stats
   document.getElementById('stat-networth').textContent = formatIDR(netWorth);
   
+  // Update Mobile Ticker Bar & Mobile Bottom Nav
+  if (document.getElementById('ticker-networth')) {
+    document.getElementById('ticker-networth').textContent = formatIDR(netWorth);
+    document.getElementById('ticker-cash').textContent = formatIDR(gameState.cash);
+    document.getElementById('ticker-fcf').textContent = `${fcf >= 0 ? '+' : ''}${formatIDR(fcf)}`;
+    document.getElementById('ticker-vital').textContent = `${gameState.stamina} / ${gameState.stress}`;
+    document.getElementById('mobile-nav-nw').textContent = `Rp ${(netWorth / 1000000).toFixed(1)} Jt`;
+  }
+  
   const initialNW = gameState.netWorthHistory[0] || 62600000;
   const nwDelta = netWorth - initialNW;
   const deltaEl = document.getElementById('stat-networth-delta');
   if (nwDelta >= 0) {
     deltaEl.textContent = `▲ +${formatIDR(nwDelta)} sejak awal`;
-    deltaEl.className = "trend text-emerald";
+    deltaEl.className = "nw-delta text-emerald";
   } else {
     deltaEl.textContent = `▼ ${formatIDR(nwDelta)} sejak awal`;
-    deltaEl.className = "trend text-rose";
+    deltaEl.className = "nw-delta text-rose";
   }
 
   document.getElementById('stat-cash').textContent = formatIDR(gameState.cash);
   const monthsBuffer = ((gameState.cash / Math.max(1, gameState.expenses))).toFixed(1);
-  document.getElementById('stat-cash-buffer').textContent = `~${monthsBuffer} Bulan Pengeluaran`;
+  document.getElementById('stat-cash-buffer').textContent = `~${monthsBuffer} Bln Pengeluaran`;
 
   const fcfEl = document.getElementById('stat-fcf');
   fcfEl.textContent = `${fcf >= 0 ? '+' : ''}${formatIDR(fcf)}`;
-  fcfEl.className = `value font-mono ${fcf >= 0 ? 'text-emerald' : 'text-rose'}`;
+  fcfEl.className = `m-val font-mono ${fcf >= 0 ? 'text-cyan' : 'text-rose'}`;
 
   // Cash flow details
   document.getElementById('stat-income-active').textContent = formatIDR(gameState.incomeActive);
@@ -1112,15 +1121,15 @@ function renderUI() {
   
   gameState.assets.forEach(asset => {
     const item = document.createElement('div');
-    item.className = 'data-item';
+    item.className = 'data-row';
     item.innerHTML = `<span>${asset.name}</span><span class="font-mono text-cyan">${formatIDR(asset.value)}</span>`;
     assetsContainer.appendChild(item);
   });
 
   gameState.businesses.forEach(biz => {
     const item = document.createElement('div');
-    item.className = 'data-item';
-    item.innerHTML = `<span>🏢 ${biz.name}</span><span class="font-mono text-emerald">+${formatIDR(biz.mrr)}/bln (Val: ${formatIDR(biz.valuation)})</span>`;
+    item.className = 'data-row';
+    item.innerHTML = `<span>🏢 ${biz.name}</span><span class="font-mono text-emerald">+${formatIDR(biz.mrr)}/bln</span>`;
     assetsContainer.appendChild(item);
   });
 
@@ -1195,8 +1204,10 @@ function renderCurrentScenario() {
     card.className = 'choice-card';
     card.innerHTML = `
       <div>
-        <div class="choice-letter">PILIHAN ${c.id}</div>
-        <span class="choice-type-badge ${c.typeClass || 'badge-reversible'}">${c.type || 'Decisions'}</span>
+        <div class="card-top-row">
+          <span class="choice-letter">PILIHAN ${c.id}</span>
+          <span class="choice-type-badge ${c.typeClass || 'badge-reversible'}">${c.type || 'Keputusan'}</span>
+        </div>
         <h4 class="choice-name">${c.name}</h4>
         
         <div class="choice-meta-grid">
@@ -1206,14 +1217,14 @@ function renderCurrentScenario() {
           </div>
           <div class="meta-row">
             <span class="meta-label">Potensi Hasil:</span>
-            <span class="meta-val text-emerald">${c.roi}</span>
+            <span class="meta-val text-emerald font-bold">${c.roi}</span>
           </div>
           <div class="meta-row">
             <span class="meta-label">Risiko Utama:</span>
             <span class="meta-val text-rose">${c.risk}</span>
           </div>
           <div class="meta-row">
-            <span class="meta-label">Opportunity Cost:</span>
+            <span class="meta-label">Opp. Cost:</span>
             <span class="meta-val text-amber">${c.oppCost}</span>
           </div>
           <div class="meta-row">
@@ -1236,7 +1247,7 @@ function renderCurrentScenario() {
 
 function executeChoice(choice) {
   // Sembunyikan choices, tampilkan panel resolusi
-  document.getElementById('choices-grid').parentElement.classList.add('hidden');
+  document.getElementById('decision-section').classList.add('hidden');
   
   // Eksekusi fungsi konsekuensi
   const result = choice.execute(gameState);
@@ -1292,6 +1303,9 @@ function executeChoice(choice) {
   fcfDiv.innerHTML = `<span>📈</span> <span>Akumulasi Free Cash Flow 3 bulan (1 Kuartal): <strong>${fcfQuarterly >= 0 ? '+' : ''}${formatIDR(fcfQuarterly)}</strong></span>`;
   impactsContainer.appendChild(fcfDiv);
 
+  // Scroll otomatis ke resolution panel untuk pengalaman mobile yang mulus
+  resPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
   // Trigger confetti jika ada pencapaian besar
   if (result.title.includes('Sukses') || result.title.includes('Melonjak') || result.title.includes('Lunas')) {
     if (typeof confetti === 'function') confetti({ particleCount: 50, spread: 60 });
@@ -1303,7 +1317,7 @@ function executeChoice(choice) {
 
 function nextRound() {
   document.getElementById('resolution-panel').classList.add('hidden');
-  document.getElementById('choices-grid').parentElement.classList.remove('hidden');
+  document.getElementById('decision-section').classList.remove('hidden');
 
   // Cek apakah mencapai Ronde 5, 10, 15 (Audit 5 Ronde) atau 20 (Final Report)
   if (gameState.round % 5 === 0 || gameState.round === gameState.maxRounds) {
@@ -1318,6 +1332,8 @@ function nextRound() {
       gameState.age += 1;
     }
     renderUI();
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
     // Game Selesai
     showFinalReport();
@@ -1331,7 +1347,6 @@ function showAuditReport(roundNum) {
   const titleEl = document.getElementById('audit-title');
   const bodyEl = document.getElementById('audit-body');
 
-  const historySubset = gameState.history.slice(-5);
   const currentNW = calculateNetWorth(gameState);
   const nwDelta = currentNW - gameState.netWorthHistory[0];
 
@@ -1341,7 +1356,7 @@ function showAuditReport(roundNum) {
   let analysisHtml = `
     <div class="audit-section-box">
       <h4>1. Pola Pengambilan Keputusan & Profil Risiko</h4>
-      <p>Dari ${gameState.history.length} ronde yang telah dilalui, Anda menunjukkan kecenderungan alokasi yang berfokus pada <strong>${gameState.cash > 80000000 ? 'Keamanan Likuiditas Kuat' : 'Pertumbuhan Terarah'}</strong>. Tingkat stres Anda saat ini berada di <strong>${gameState.stress}%</strong> dengan stamina <strong>${gameState.stamina}%</strong>.</p>
+      <p>Dari ${gameState.history.length} ronde yang telah dilalui, Anda menunjukkan profil: <strong>${gameState.cash > 80000000 ? 'Disiplin Menjaga Likuiditas Kas' : 'Agresif Mengejar Pertumbuhan'}</strong>. Tingkat stamina fisik berada di angka <strong>${gameState.stamina}%</strong> dan stres <strong>${gameState.stress}%</strong>.</p>
     </div>
     
     <div class="audit-section-box">
@@ -1393,15 +1408,15 @@ function renderChart() {
             color: '#94A3B8',
             callback: (v) => 'Rp ' + (v / 1000000) + ' Jt'
           },
-          grid: { color: '#24324D' }
+          grid: { color: '#202D49' }
         },
         x: {
           ticks: { color: '#94A3B8' },
-          grid: { color: '#24324D' }
+          grid: { color: '#202D49' }
         }
       },
       plugins: {
-        legend: { labels: { color: '#F1F5F9' } }
+        legend: { labels: { color: '#F8FAFC' } }
       }
     }
   });
@@ -1409,7 +1424,11 @@ function renderChart() {
 
 function renderHistory() {
   const list = document.getElementById('history-list');
+  const countEl = document.getElementById('history-count');
   list.innerHTML = '';
+  
+  if (countEl) countEl.textContent = `${gameState.history.length} Ronde Terekam`;
+
   if (gameState.history.length === 0) {
     list.innerHTML = '<span class="text-dim">Belum ada keputusan yang dieksekusi.</span>';
     return;
@@ -1426,6 +1445,36 @@ function renderHistory() {
     `;
     list.appendChild(card);
   });
+}
+
+// Mobile Drawer & Modal Handlers
+function setupMobileDrawer() {
+  const sidebar = document.getElementById('sidebar-panel');
+  const overlay = document.getElementById('drawer-overlay');
+  const btnOpen = document.getElementById('btn-open-sidebar');
+  const btnClose = document.getElementById('btn-close-drawer');
+
+  if (btnOpen) {
+    btnOpen.addEventListener('click', () => {
+      sidebar.classList.add('drawer-open');
+      overlay.classList.remove('hidden');
+    });
+  }
+
+  const closeDrawer = () => {
+    sidebar.classList.remove('drawer-open');
+    overlay.classList.add('hidden');
+  };
+
+  if (btnClose) btnClose.addEventListener('click', closeDrawer);
+  if (overlay) overlay.addEventListener('click', closeDrawer);
+
+  const btnOpenChart = document.getElementById('btn-open-chart');
+  if (btnOpenChart) {
+    btnOpenChart.addEventListener('click', () => {
+      showAuditReport(gameState.round);
+    });
+  }
 }
 
 // Event Listeners
@@ -1459,4 +1508,5 @@ document.getElementById('toggle-history').addEventListener('click', () => {
 // Init
 window.addEventListener('DOMContentLoaded', () => {
   renderUI();
+  setupMobileDrawer();
 });
