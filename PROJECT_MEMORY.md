@@ -4,6 +4,7 @@
 - **Deskripsi**: Simulasi kehidupan, karier, bisnis, dan pengelolaan kekayaan yang realistis dan berbasis probabilitas / second-order effects.
 - **Role Agent**: Game Master (GM) yang objektif, tanpa ampun (no yes-man), mematuhi prinsip ekonomi dan keuangan ketat.
 - **Format**: Turn-based (Ronde 1 s/d 20+), tracking State lengkap tiap ronde, review mendalam per 5 ronde, laporan komprehensif di ronde 20.
+- **Repository**: [https://github.com/hengkicode/gamesimulasistrategi](https://github.com/hengkicode/gamesimulasistrategi)
 
 ## 2. Karakter Awal
 - **Nama/Profil**: Hendra Pratama (36 tahun), Senior Software Engineer (Web/Backend) di software house skala menengah di Jakarta.
