@@ -1058,7 +1058,8 @@ function renderUI() {
   
   // Header badges
   document.getElementById('badge-round').textContent = `RONDE ${gameState.round} / ${gameState.maxRounds}`;
-  document.getElementById('badge-health').textContent = `STAMINA: ${gameState.stamina}%`;
+  const badgeHealth = document.getElementById('badge-health');
+  if (badgeHealth) badgeHealth.textContent = `STAMINA: ${gameState.stamina}%`;
 
   // Profile
   document.getElementById('char-role').textContent = `${gameState.age} Tahun • Senior Software Engineer (Jakarta)`;
